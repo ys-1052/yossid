@@ -13,7 +13,7 @@ import (
 var adapter *echoadapter.EchoLambdaV2
 
 func init() {
-	log.Println("Initializing YossID OIDC Provider (AWS Lambda Mode)...")
+	log.Println("Initializing yossid OIDC Provider (AWS Lambda Mode)...")
 	ctx := context.Background()
 
 	application, err := app.NewApp(ctx)

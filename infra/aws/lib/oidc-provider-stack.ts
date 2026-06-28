@@ -33,7 +33,7 @@ export class OidcProviderStack extends cdk.Stack {
     const lambdaRole = new iam.Role(this, "OidcProviderLambdaRole", {
       roleName: "yossid-oidc-provider-lambda-role",
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      description: "Execution role for YossID OIDC Provider Lambda",
+      description: "Execution role for yossid OIDC Provider Lambda",
     });
 
     // CloudWatch Logs
@@ -79,7 +79,7 @@ export class OidcProviderStack extends cdk.Stack {
     // ── API Gateway HTTP API ─────────────────────────────────────────────────
     const httpApi = new apigwv2.HttpApi(this, "OidcProviderApi", {
       apiName: "yossid-oidc-provider-api",
-      description: "YossID OIDC Provider HTTP API",
+      description: "yossid OIDC Provider HTTP API",
       // Default stage ($default) → shortest URL
       createDefaultStage: true,
     });
@@ -89,7 +89,7 @@ export class OidcProviderStack extends cdk.Stack {
     // The `bootstrap` binary name is required for provided.al2023 runtime.
     const fn = new lambda.DockerImageFunction(this, "OidcProviderFunction", {
       functionName: "yossid-oidc-provider",
-      description: "YossID OIDC Provider — Echo on Go Lambda (provided.al2023)",
+      description: "yossid OIDC Provider — Echo on Go Lambda (provided.al2023)",
       role: lambdaRole,
       logGroup,
       timeout: cdk.Duration.seconds(30),

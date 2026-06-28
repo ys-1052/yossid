@@ -8,5 +8,5 @@ new OidcProviderStack(app, "YossidOidcProviderStack", {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: "ap-northeast-1",
   },
-  description: "YossID OIDC Provider — Lambda + API Gateway HTTP API",
+  description: "yossid OIDC Provider — Lambda + API Gateway HTTP API",
 });

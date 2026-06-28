@@ -41,15 +41,15 @@ func NewMailer(ctx context.Context, cfg *config.Config) (Mailer, error) {
 
 func (m *mailer) SendVerificationEmail(ctx context.Context, toEmail, token string) error {
 	verifyURL := fmt.Sprintf("%s/email/verify?token=%s", m.cfg.Issuer, token)
-	subject := "[YossID] メールアドレスの確認"
-	body := fmt.Sprintf("YossID へ登録いただきありがとうございます。\n以下のリンクをクリックして登録を完了してください。\n\n%s\n\n有効期限: 30分", verifyURL)
+	subject := "[yossid] Verify your email address"
+	body := fmt.Sprintf("Thank you for registering with yossid. Please click the link below to complete your registration:\n\n%s\n\nThis link is valid for 30 minutes.", verifyURL)
 
 	return m.send(ctx, toEmail, subject, body)
 }
 
 func (m *mailer) SendOTPEmail(ctx context.Context, toEmail, otp string) error {
-	subject := "[YossID] 2段階認証コード"
-	body := fmt.Sprintf("認証コードは以下の通りです。\n\n%s\n\n有効期限: 5分", otp)
+	subject := "[yossid] Your two-factor verification code"
+	body := fmt.Sprintf("Your verification code is:\n\n%s\n\nThis code is valid for 5 minutes.", otp)
 
 	return m.send(ctx, toEmail, subject, body)
 }

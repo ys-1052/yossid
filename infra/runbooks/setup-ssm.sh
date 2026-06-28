@@ -13,7 +13,7 @@ else
 fi
 
 echo "=========================================================="
-echo " YossID OIDC Provider — SSM Parameter Setup"
+echo " yossid OIDC Provider — SSM Parameter Setup"
 echo "=========================================================="
 
 # Check AWS CLI
@@ -45,20 +45,20 @@ put_param() {
 
 # 1. Generate Cookie Signing Key (64-byte random hex)
 COOKIE_KEY=$(openssl rand -hex 64)
-put_param "$PREFIX/cookie/signing-key" "YossID session cookie signing key" "$COOKIE_KEY"
+put_param "$PREFIX/cookie/signing-key" "yossid session cookie signing key" "$COOKIE_KEY"
 
 # 2. Generate Token Pepper (32-byte random hex)
 TOKEN_PEPPER=$(openssl rand -hex 32)
-put_param "$PREFIX/token/pepper" "YossID token pepper for hashing values" "$TOKEN_PEPPER"
+put_param "$PREFIX/token/pepper" "yossid token pepper for hashing values" "$TOKEN_PEPPER"
 
 # 3. Generate OTP Pepper (32-byte random hex)
 OTP_PEPPER=$(openssl rand -hex 32)
-put_param "$PREFIX/otp/pepper" "YossID MFA OTP pepper for hashing values" "$OTP_PEPPER"
+put_param "$PREFIX/otp/pepper" "yossid MFA OTP pepper for hashing values" "$OTP_PEPPER"
 
 # 4. Generate RSA Private Key PEM (2048-bit)
 echo "Generating RSA Private Key..."
 RSA_PEM=$(openssl genrsa 2048 2>/dev/null)
-put_param "$PREFIX/jwt/private-key" "YossID OIDC JWT signing RSA private key (RS256)" "$RSA_PEM"
+put_param "$PREFIX/jwt/private-key" "yossid OIDC JWT signing RSA private key (RS256)" "$RSA_PEM"
 
 echo "----------------------------------------------------------"
 echo "Generated and uploaded core secrets successfully!"

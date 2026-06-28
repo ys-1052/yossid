@@ -9,7 +9,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	log.Println("Starting YossID OIDC Provider (Local HTTP Mode)...")
+	log.Println("Starting yossid OIDC Provider (Local HTTP Mode)...")
 
 	application, err := app.NewApp(ctx)
 	if err != nil {
