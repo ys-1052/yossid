@@ -1115,6 +1115,28 @@ func (q *Queries) MarkRefreshTokenReuse(ctx context.Context, id uuid.UUID) error
 	return err
 }
 
+const revokeAllLoginSessionsByUserID = `-- name: RevokeAllLoginSessionsByUserID :exec
+UPDATE login_sessions
+SET revoked_at = now()
+WHERE user_id = $1 AND revoked_at IS NULL
+`
+
+func (q *Queries) RevokeAllLoginSessionsByUserID(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, revokeAllLoginSessionsByUserID, userID)
+	return err
+}
+
+const revokeAllRefreshTokensByUserID = `-- name: RevokeAllRefreshTokensByUserID :exec
+UPDATE refresh_tokens
+SET revoked_at = now()
+WHERE user_id = $1 AND revoked_at IS NULL
+`
+
+func (q *Queries) RevokeAllRefreshTokensByUserID(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, revokeAllRefreshTokensByUserID, userID)
+	return err
+}
+
 const revokeLoginSession = `-- name: RevokeLoginSession :exec
 UPDATE login_sessions
 SET revoked_at = now()
@@ -1123,6 +1145,17 @@ WHERE id = $1
 
 func (q *Queries) RevokeLoginSession(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, revokeLoginSession, id)
+	return err
+}
+
+const revokeLoginSessionByHash = `-- name: RevokeLoginSessionByHash :exec
+UPDATE login_sessions
+SET revoked_at = now()
+WHERE session_hash = $1
+`
+
+func (q *Queries) RevokeLoginSessionByHash(ctx context.Context, sessionHash string) error {
+	_, err := q.db.ExecContext(ctx, revokeLoginSessionByHash, sessionHash)
 	return err
 }
 

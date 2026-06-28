@@ -52,6 +52,7 @@ type LoginService interface {
 	VerifyMFA(ctx context.Context, input VerifyMFAInput) (*VerifyMFAResult, error)
 	GetSession(ctx context.Context, sessionID string) (*db.LoginSession, error)
 	RevokeSession(ctx context.Context, sessionID string) error
+	WithdrawUser(ctx context.Context, userID uuid.UUID, reason, ipAddress, userAgent string) error
 }
 
 type loginService struct {
@@ -250,6 +251,16 @@ func (s *loginService) RevokeSession(ctx context.Context, sessionID string) erro
 	}
 
 	s.logAudit(ctx, "logout", uuid.NullUUID{UUID: session.UserID, Valid: true}, "success", "", "", nil)
+	return nil
+}
+
+func (s *loginService) WithdrawUser(ctx context.Context, userID uuid.UUID, reason, ipAddress, userAgent string) error {
+	err := s.userRepo.Withdraw(ctx, userID, reason, ipAddress, userAgent)
+	if err != nil {
+		return err
+	}
+
+	s.logAudit(ctx, "user_withdrawn", uuid.NullUUID{UUID: userID, Valid: true}, "success", ipAddress, userAgent, nil)
 	return nil
 }
 

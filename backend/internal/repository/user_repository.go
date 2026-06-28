@@ -103,13 +103,13 @@ func (u *userRepository) Withdraw(ctx context.Context, userID uuid.UUID, reason 
 		}
 
 		// 3. Revoke all login sessions for this user
-		_, err = u.pgDB.DB.ExecContext(ctx, "UPDATE login_sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL", userID)
+		err = q.RevokeAllLoginSessionsByUserID(ctx, userID)
 		if err != nil {
 			return err
 		}
 
 		// 4. Revoke all refresh tokens for this user
-		_, err = u.pgDB.DB.ExecContext(ctx, "UPDATE refresh_tokens SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL", userID)
+		err = q.RevokeAllRefreshTokensByUserID(ctx, userID)
 		if err != nil {
 			return err
 		}

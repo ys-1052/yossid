@@ -64,7 +64,10 @@ type Querier interface {
 	MarkOTPUsed(ctx context.Context, id uuid.UUID) error
 	MarkPendingRegistrationUsed(ctx context.Context, id uuid.UUID) error
 	MarkRefreshTokenReuse(ctx context.Context, id uuid.UUID) error
+	RevokeAllLoginSessionsByUserID(ctx context.Context, userID uuid.UUID) error
+	RevokeAllRefreshTokensByUserID(ctx context.Context, userID uuid.UUID) error
 	RevokeLoginSession(ctx context.Context, id uuid.UUID) error
+	RevokeLoginSessionByHash(ctx context.Context, sessionHash string) error
 	RevokeRefreshTokenFamily(ctx context.Context, tokenFamilyID uuid.UUID) error
 	RotateRefreshToken(ctx context.Context, arg RotateRefreshTokenParams) error
 	UpdatePasswordCredential(ctx context.Context, arg UpdatePasswordCredentialParams) (UserPasswordCredential, error)

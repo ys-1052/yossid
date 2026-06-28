@@ -5,17 +5,27 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/ys-1052/yossid/backend/internal/config"
 	"github.com/ys-1052/yossid/backend/internal/security"
 	"github.com/ys-1052/yossid/backend/internal/service"
+	"github.com/ys-1052/yossid/backend/internal/storage/postgres"
+	"github.com/ys-1052/yossid/backend/internal/storage/postgres/db"
 )
 
 type LoginHandler struct {
 	loginService service.LoginService
+	pgDB         *postgres.DB
+	cfg          *config.Config
 }
 
-func NewLoginHandler(loginService service.LoginService) *LoginHandler {
-	return &LoginHandler{loginService: loginService}
+func NewLoginHandler(loginService service.LoginService, pgDB *postgres.DB, cfg *config.Config) *LoginHandler {
+	return &LoginHandler{
+		loginService: loginService,
+		pgDB:         pgDB,
+		cfg:          cfg,
+	}
 }
 
 type loginRequest struct {
@@ -54,6 +64,7 @@ func (h *LoginHandler) PostLogin(c echo.Context) error {
 type verifyMFARequest struct {
 	ChallengeID string `json:"challenge_id"`
 	OTP         string `json:"otp"`
+	RequestID   string `json:"request_id"`
 }
 
 func (h *LoginHandler) PostVerifyMFA(c echo.Context) error {
@@ -62,6 +73,7 @@ func (h *LoginHandler) PostVerifyMFA(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
+	ctx := c.Request().Context()
 	input := service.VerifyMFAInput{
 		ChallengeID: req.ChallengeID,
 		OTP:         req.OTP,
@@ -69,7 +81,7 @@ func (h *LoginHandler) PostVerifyMFA(c echo.Context) error {
 		UserAgent:   c.Request().UserAgent(),
 	}
 
-	res, err := h.loginService.VerifyMFA(c.Request().Context(), input)
+	res, err := h.loginService.VerifyMFA(ctx, input)
 	if err != nil {
 		switch {
 		case errors.Is(err, service.ErrOTPChallengeNotFound):
@@ -89,10 +101,32 @@ func (h *LoginHandler) PostVerifyMFA(c echo.Context) error {
 	expires := time.Now().Add(12 * time.Hour)
 	security.SetSecureCookie(c, "op_session", res.SessionID, expires)
 
-	return c.JSON(http.StatusOK, map[string]string{
+	// If OIDC request_id is present, complete the authorization request
+	redirectTo := ""
+	if req.RequestID != "" {
+		reqIDHash := security.HashWithPepper(req.RequestID, h.cfg.TokenPepper)
+		authReq, err := h.pgDB.Queries.GetAuthorizationRequest(ctx, reqIDHash)
+		if err == nil {
+			userUUID, parseErr := uuid.Parse(res.UserID)
+			if parseErr == nil {
+				_, _ = h.pgDB.Queries.CompleteAuthorizationRequest(ctx, db.CompleteAuthorizationRequestParams{
+					ID:     authReq.ID,
+					UserID: uuid.NullUUID{UUID: userUUID, Valid: true},
+				})
+				redirectTo = "/authorize?request_id=" + req.RequestID
+			}
+		}
+	}
+
+	response := map[string]string{
 		"status":  "success",
 		"message": "Authenticated successfully.",
-	})
+	}
+	if redirectTo != "" {
+		response["redirect_to"] = redirectTo
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *LoginHandler) PostLogout(c echo.Context) error {
@@ -113,5 +147,43 @@ func (h *LoginHandler) PostLogout(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Logged out successfully.",
+	})
+}
+
+type withdrawRequest struct {
+	Reason string `json:"reason"`
+}
+
+func (h *LoginHandler) PostWithdraw(c echo.Context) error {
+	// Must be authenticated
+	cookie, err := c.Cookie("op_session")
+	if err != nil || cookie.Value == "" {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
+	}
+
+	ctx := c.Request().Context()
+
+	// Validate session
+	session, err := h.loginService.GetSession(ctx, cookie.Value)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired session")
+	}
+
+	var req withdrawRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
+	}
+
+	// Perform withdrawal: revoke tokens, sessions, update user status
+	if err := h.loginService.WithdrawUser(ctx, session.UserID, req.Reason, c.RealIP(), c.Request().UserAgent()); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process withdrawal")
+	}
+
+	// Clear the op_session cookie
+	security.ClearCookie(c, "op_session")
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"status":  "withdrawn",
+		"message": "Account has been withdrawn. Goodbye.",
 	})
 }

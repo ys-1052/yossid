@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"crypto/rsa"
 	"fmt"
 	"os"
 
@@ -11,16 +12,17 @@ import (
 )
 
 type Config struct {
-	Env              string // dev, prod
-	Port             string // e.g. "8080"
-	Issuer           string // OIDC issuer URL
-	DatabaseURL      string // Database connection string
-	JWTPrivateKeyPEM string // RSA private key PEM for token signing
-	CookieSigningKey []byte // Key for secure cookies
-	TokenPepper      string // Pepper for token hashing
-	OTPPepper        string // Pepper for OTP hashing
-	SesFromEmail     string // SES sender email
-	RunMode          string // lambda, http
+	Env              string          // dev, prod
+	Port             string          // e.g. "8080"
+	Issuer           string          // OIDC issuer URL
+	DatabaseURL      string          // Database connection string
+	JWTPrivateKeyPEM string          // RSA private key PEM for token signing
+	JWTPrivateKey    *rsa.PrivateKey // Parsed RSA private key
+	CookieSigningKey []byte          // Key for secure cookies
+	TokenPepper      string          // Pepper for token hashing
+	OTPPepper        string          // Pepper for OTP hashing
+	SesFromEmail     string          // SES sender email
+	RunMode          string          // lambda, http
 }
 
 func LoadConfig(ctx context.Context) (*Config, error) {
@@ -55,6 +57,15 @@ func LoadConfig(ctx context.Context) (*Config, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to generate local dev RSA private key: %w", err)
 			}
+		}
+
+		// Parse RSA private key for dev path
+		if cfg.JWTPrivateKeyPEM != "" {
+			parsedKey, err := security.ParseRSAPrivateKeyPEM(cfg.JWTPrivateKeyPEM)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse local dev private key: %w", err)
+			}
+			cfg.JWTPrivateKey = parsedKey
 		}
 
 		return cfg, nil
@@ -117,6 +128,14 @@ func LoadConfig(ctx context.Context) (*Config, error) {
 
 	if cfg.Issuer == "" {
 		return nil, fmt.Errorf("ISSUER is not set")
+	}
+
+	// Parse RSA private key for prod path
+	if cfg.JWTPrivateKeyPEM != "" {
+		cfg.JWTPrivateKey, err = security.ParseRSAPrivateKeyPEM(cfg.JWTPrivateKeyPEM)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse production private key: %w", err)
+		}
 	}
 
 	return cfg, nil

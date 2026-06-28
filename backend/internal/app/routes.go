@@ -9,12 +9,7 @@ type ServerHandlers struct {
 	Health   *handler.HealthHandler
 	Register *handler.RegisterHandler
 	Login    *handler.LoginHandler
-	// Placeholders for other handlers:
-	// Authorize  *handler.AuthorizeHandler
-	// Token      *handler.TokenHandler
-	// Userinfo   *handler.UserinfoHandler
-	// Discovery  *handler.DiscoveryHandler
-	// Jwks       *handler.JwksHandler
+	OIDC     *handler.OIDCHandler
 }
 
 func RegisterRoutes(e *echo.Echo, handlers *ServerHandlers) {
@@ -38,13 +33,15 @@ func RegisterRoutes(e *echo.Echo, handlers *ServerHandlers) {
 	authGroup.POST("/login", handlers.Login.PostLogin)
 	authGroup.POST("/mfa/email/verify", handlers.Login.PostVerifyMFA)
 	authGroup.POST("/logout", handlers.Login.PostLogout)
+	authGroup.POST("/withdraw", handlers.Login.PostWithdraw)
 
-	// TODO: Register actual handlers here
-	// authGroup.GET("/authorize", handlers.Authorize.GetAuthorize)
-	// authGroup.POST("/token", handlers.Token.PostToken)
-	// authGroup.GET("/userinfo", handlers.Userinfo.GetUserInfo)
+	// OIDC Core routes
+	authGroup.GET("/authorize", handlers.OIDC.GetAuthorize)
+	authGroup.POST("/token", handlers.OIDC.PostToken)
+	authGroup.GET("/userinfo", handlers.OIDC.GetUserInfo)
+	authGroup.POST("/userinfo", handlers.OIDC.PostUserInfo)
 
 	// Discovery and JWKS endpoints (Cacheable)
-	// e.GET("/.well-known/openid-configuration", handlers.Discovery.GetDiscovery)
-	// e.GET("/jwks.json", handlers.Jwks.GetJWKS)
+	e.GET("/.well-known/openid-configuration", handlers.OIDC.GetDiscovery)
+	e.GET("/jwks.json", handlers.OIDC.GetJWKS)
 }

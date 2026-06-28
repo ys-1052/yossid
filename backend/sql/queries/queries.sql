@@ -157,6 +157,11 @@ UPDATE refresh_tokens
 SET revoked_at = now()
 WHERE token_family_id = $1;
 
+-- name: RevokeAllRefreshTokensByUserID :exec
+UPDATE refresh_tokens
+SET revoked_at = now()
+WHERE user_id = $1 AND revoked_at IS NULL;
+
 -- name: MarkRefreshTokenReuse :exec
 UPDATE refresh_tokens
 SET reuse_detected_at = now()
@@ -176,6 +181,17 @@ RETURNING *;
 UPDATE login_sessions
 SET revoked_at = now()
 WHERE id = $1;
+
+-- name: RevokeLoginSessionByHash :exec
+UPDATE login_sessions
+SET revoked_at = now()
+WHERE session_hash = $1;
+
+-- name: RevokeAllLoginSessionsByUserID :exec
+UPDATE login_sessions
+SET revoked_at = now()
+WHERE user_id = $1 AND revoked_at IS NULL;
+
 
 
 -- Email OTP Challenges
