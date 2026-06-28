@@ -22,7 +22,7 @@ type mailer struct {
 }
 
 func NewMailer(ctx context.Context, cfg *config.Config) (Mailer, error) {
-	if cfg.Env != "prod" {
+	if cfg.Env == "local" {
 		// Return mock mailer for local development
 		return &mockMailer{cfg: cfg}, nil
 	}

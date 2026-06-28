@@ -1,4 +1,9 @@
-.PHONY: fmt vet test build run-local db-up db-down migrate
+ifneq (,$(wildcard ../.env))
+	include ../.env
+	export
+endif
+
+.PHONY: fmt vet test build run-local db-up db-down migrate migrate-neon
 
 # Default target
 all: fmt vet test build
@@ -31,6 +36,10 @@ db-up:
 db-down:
 	docker-compose down
 
-# Run DB Migrations
+# Run DB Migrations (Local)
 migrate:
 	go run cmd/migrate/main.go
+
+# Run DB Migrations (Neon)
+migrate-neon:
+	DATABASE_URL="$(NEON_MIGRATION_URL)" go run cmd/migrate/main.go

@@ -26,7 +26,11 @@ type Config struct {
 }
 
 func LoadConfig(ctx context.Context) (*Config, error) {
-	env := getEnv("ENV", "dev")
+	inLambda := os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
+	env := "local"
+	if inLambda {
+		env = "lambda"
+	}
 	port := getEnv("PORT", "8080")
 	runMode := getEnv("RUN_MODE", "http")
 	sesFromEmail := getEnv("SES_FROM_EMAIL", "no-reply@example.com")
@@ -38,7 +42,7 @@ func LoadConfig(ctx context.Context) (*Config, error) {
 		SesFromEmail: sesFromEmail,
 	}
 
-	if env != "prod" {
+	if env == "local" {
 		// Load from local environment variables
 		cfg.Issuer = getEnv("ISSUER", "http://localhost:8080")
 		cfg.DatabaseURL = getEnv("DATABASE_URL", "postgres://postgres:password@localhost:5433/yossid?sslmode=disable")
@@ -86,6 +90,7 @@ func LoadConfig(ctx context.Context) (*Config, error) {
 	tokenPepperParamName := os.Getenv("TOKEN_PEPPER_PARAMETER")
 	otpPepperParamName := os.Getenv("OTP_PEPPER_PARAMETER")
 	issuerParamName := os.Getenv("ISSUER_PARAMETER")
+	sesFromEmailParamName := os.Getenv("SES_FROM_EMAIL_PARAMETER")
 
 	if dbParamName == "" || jwtParamName == "" || cookieParamName == "" {
 		return nil, fmt.Errorf("SSM Parameter name environment variables are not set")
@@ -128,6 +133,18 @@ func LoadConfig(ctx context.Context) (*Config, error) {
 
 	if cfg.Issuer == "" {
 		return nil, fmt.Errorf("ISSUER is not set")
+	}
+
+	if sesFromEmailParamName != "" {
+		cfg.SesFromEmail, err = getSSMParameter(ctx, ssmClient, sesFromEmailParamName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch SES from email from SSM: %w", err)
+		}
+	} else {
+		cfg.SesFromEmail = os.Getenv("SES_FROM_EMAIL")
+	}
+	if cfg.SesFromEmail == "" {
+		cfg.SesFromEmail = "no-reply@example.com"
 	}
 
 	// Parse RSA private key for prod path

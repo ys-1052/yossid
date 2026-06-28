@@ -39,3 +39,7 @@ dist/
 *.tfstate
 *.tfstate.*
 crash.log
+
+# AWS CDK
+.cdk.staging/
+cdk.out/

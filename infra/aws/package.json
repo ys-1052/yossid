@@ -1,0 +1,25 @@
+{
+  "name": "yossid-aws-cdk",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy": "cdk deploy",
+    "diff": "cdk diff",
+    "synth": "cdk synth",
+    "format": "prettier --write \"**/*.ts\""
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.260.0",
+    "constructs": "10.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "aws-cdk": "2.1128.1",
+    "prettier": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "6.0.3"
+  }
+}
