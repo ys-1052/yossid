@@ -10,25 +10,49 @@ yossid is a serverless OpenID Connect (OIDC) provider built with Go (Echo + Ory 
   - [`aws/`](file:///Users/ytakahashi/app/yossid/infra/aws): AWS CDK TypeScript stack (Lambda, API Gateway, IAM, SSM).
   - [`runbooks/`](file:///Users/ytakahashi/app/yossid/infra/runbooks): Automation scripts for configuration setup.
 
-## Quick Start (Local Development)
+## Quick Start (Local Development via Makefile & Docker Compose)
 
-### 1. Start Local Database
-Run the PostgreSQL database container:
+We use a root-level `Makefile` to run shorthand commands that orchestrate the Docker Compose environment.
+
+### 1. Build and Start the Stack
+From the project root directory, run:
 ```bash
-cd backend
-make db-up
+make up
 ```
+This builds and starts:
+- **Next.js Frontend**: Accessible at [http://localhost:3000](http://localhost:3000) (hot-reloaded)
+- **Go Backend Server**: Accessible at [http://localhost:8080](http://localhost:8080)
+- **PostgreSQL Database**: Port mapping `5433:5432`
 
 ### 2. Run Database Migrations
-Create the database tables locally:
+Initialize the local database tables:
 ```bash
 make migrate
 ```
 
-### 3. Start Local Server
-Start the HTTP development server on port `8080`:
+### 3. Restart Go Backend
+If you modify backend Go source files, run this to compile and restart the backend server container:
 ```bash
-make run-local
+make restart
+```
+
+### 4. View Service Logs
+Tail logs from all running containers:
+```bash
+make logs
+```
+
+### 5. Run Tests & Linting
+Run backend unit tests and linter inside the Docker environment:
+```bash
+make test
+make vet
+```
+
+### 6. Stop the Stack
+Tear down the running containers:
+```bash
+make down
 ```
 
 ---

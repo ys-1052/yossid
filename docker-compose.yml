@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: yossid-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: yossid
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: yossid-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PORT=8080
+      - RUN_MODE=http
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/yossid?sslmode=disable
+      - ISSUER=http://localhost:8080
+      - TOKEN_PEPPER=local_token_pepper_value_32_chars_long
+      - OTP_PEPPER=local_otp_pepper_value_32_chars_long
+      - COOKIE_SIGNING_KEY=local_cookie_signing_key_32_bytes_long
+      - SES_FROM_EMAIL=no-reply@example.com
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: yossid-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - BACKEND_URL=http://backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
