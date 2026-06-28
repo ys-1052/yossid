@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yossid — Security Settings (Neo-Brutalist)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --card-bg: #ffffff;
+      --text-main: #111111;
+      --text-muted: #666666;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --danger: #ef4444;
+      --border-color: #111111;
+      --shadow-offset: 5px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Nav */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: var(--card-bg);
+      border-bottom: 4px solid var(--border-color);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      text-transform: lowercase;
+      text-decoration: none;
+      color: var(--text-main);
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .logout-btn {
+      padding: 8px 14px;
+      background: var(--danger);
+      color: #fff;
+      border: 2px solid var(--border-color);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px var(--border-color);
+      transition: all 0.1s ease;
+    }
+
+    .logout-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--border-color);
+    }
+
+    /* Layout Wrapper */
+    .layout-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 1000px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 20px;
+      gap: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .layout-wrapper {
+        grid-template-columns: 240px 1fr;
+      }
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      border-bottom: 4px solid var(--border-color);
+      padding-bottom: 20px;
+      height: fit-content;
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        flex-direction: column;
+        border-bottom: none;
+        border-right: 4px dashed var(--border-color);
+        padding-bottom: 0;
+        padding-right: 24px;
+      }
+    }
+
+    .nav-item {
+      display: block;
+      padding: 12px 16px;
+      border: 3px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      box-shadow: 3px 3px 0px var(--border-color);
+      transition: all 0.1s ease;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      .nav-item {
+        text-align: left;
+      }
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--accent);
+      color: #fff;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--border-color);
+    }
+
+    /* Content Area */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 4px solid var(--border-color);
+      padding: 32px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+      position: relative;
+    }
+
+    .meta-tag {
+      position: absolute;
+      top: -16px;
+      left: 20px;
+      background: var(--text-main);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border: 2px solid var(--border-color);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      border-bottom: 2px dashed var(--border-color);
+      padding-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .description {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .status-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border: 2px solid var(--border-color);
+      background: #dcfce7;
+      color: #16a34a;
+      margin-bottom: 20px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 3px solid var(--border-color);
+      border-radius: 0px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: transform 0.1s ease;
+    }
+
+    input:focus {
+      background: #ffffff;
+      box-shadow: 3px 3px 0px var(--accent);
+      transform: translate(-1px, -1px);
+    }
+
+    .action-btn {
+      padding: 12px 24px;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 3px solid var(--border-color);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0px var(--border-color);
+      transition: all 0.1s ease;
+      text-transform: uppercase;
+    }
+
+    .action-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--border-color);
+    }
+
+    .action-btn-danger {
+      border-color: var(--border-color);
+    }
+
+    .action-btn-danger:hover {
+      background: var(--danger);
+    }
+
+    /* Active Sessions List */
+    .session-list {
+      list-style: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .session-item {
+      padding: 16px;
+      border: 2px solid var(--border-color);
+      background: var(--bg);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .session-info {
+      line-height: 1.5;
+    }
+
+    .session-device {
+      font-weight: 700;
+    }
+
+    .session-ip {
+      color: var(--text-muted);
+    }
+
+    .session-current {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #16a34a;
+      border: 1px solid var(--border-color);
+      padding: 1px 4px;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Nav -->
+  <header class="top-nav">
+    <a href="/account" class="logo">yossid</a>
+    <form action="/logout" method="POST">
+      <button type="submit" class="logout-btn">Sign Out</button>
+    </form>
+  </header>
+
+  <!-- Main Wrapper -->
+  <div class="layout-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <a href="account_home.html" class="nav-item">Home</a>
+      <a href="account_profile.html" class="nav-item">Personal Info</a>
+      <a href="account_security.html" class="nav-item active">Security</a>
+    </nav>
+
+    <!-- Content -->
+    <main class="content-area">
+      <!-- 2-Step Verification Card -->
+      <section class="card">
+        <div class="meta-tag">MFA_SECURITY</div>
+        <h2 class="card-title">2-Step Verification</h2>
+        <p class="description">
+          Add an extra layer of security to your identity by requiring a 6-digit confirmation code sent to your email whenever you sign in.
+        </p>
+        <div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px;">
+            Current Status
+          </span>
+          <div class="status-badge">MFA_ENABLED</div>
+        </div>
+        <form action="/account/mfa/disable" method="POST">
+          <button type="submit" class="action-btn action-btn-danger">Disable 2-Step Verification</button>
+        </form>
+      </section>
+
+      <!-- Password Card -->
+      <section class="card">
+        <div class="meta-tag">PASSWORD_MANAGEMENT</div>
+        <h2 class="card-title">Change Password</h2>
+        
+        <form id="passwordForm" method="POST" action="/account/password">
+          <div class="form-group">
+            <div class="label-row">
+              <label for="current-password">Current Password</label>
+            </div>
+            <input type="password" id="current-password" name="current_password" required>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="new-password">New Password</label>
+            </div>
+            <input type="password" id="new-password" name="new_password" required>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="confirm-password">Confirm New Password</label>
+            </div>
+            <input type="password" id="confirm-password" name="confirm_password" required>
+          </div>
+
+          <button type="submit" class="action-btn">Update Password</button>
+        </form>
+      </section>
+
+      <!-- Active Sessions Card -->
+      <section class="card">
+        <div class="meta-tag">ACTIVE_SESSIONS</div>
+        <h2 class="card-title">Active Devices & Sessions</h2>
+        <p class="description">You are currently signed in on these devices:</p>
+        
+        <ul class="session-list">
+          <li class="session-item">
+            <div class="session-info">
+              <div class="session-device">
+                Macintosh (Safari) <span class="session-current">THIS_DEVICE</span>
+              </div>
+              <div class="session-ip">IP: 203.0.113.45 — Tokyo, Japan</div>
+            </div>
+            <form action="/account/sessions/revoke" method="POST">
+              <input type="hidden" name="session_id" value="sess_current">
+              <button type="submit" class="action-btn" disabled style="opacity: 0.5; cursor: not-allowed; padding: 6px 12px; font-size: 11px;">Current</button>
+            </form>
+          </li>
+          <li class="session-item">
+            <div class="session-info">
+              <div class="session-device">iPhone (iOS Chrome)</div>
+              <div class="session-ip">IP: 198.51.100.12 — Chiba, Japan</div>
+            </div>
+            <form action="/account/sessions/revoke" method="POST">
+              <input type="hidden" name="session_id" value="sess_iphone">
+              <button type="submit" class="action-btn action-btn-danger" style="padding: 6px 12px; font-size: 11px;">Revoke</button>
+            </form>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>

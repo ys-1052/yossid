@@ -80,7 +80,7 @@ func (s *fositeStore) GetClient(ctx context.Context, id string) (fosite.Client, 
 }
 
 func (s *fositeStore) ClientAssertionJWTValid(ctx context.Context, jti string) error {
-	// No-op for MVP (snapkakeibo uses client_secret_basic / client_secret_post)
+	// No-op for MVP (client application uses client_secret_basic / client_secret_post)
 	return nil
 }
 
@@ -394,7 +394,7 @@ func (s *fositeStore) DeleteAccessTokenSession(ctx context.Context, signature st
 
 // TokenRevocationStorage methods
 func (s *fositeStore) RevokeRefreshToken(ctx context.Context, requestID string) error {
-	// No-op for MVP (snapkakeibo doesn't use RFC 7009 token revocation)
+	// No-op for MVP (client application doesn't use RFC 7009 token revocation)
 	return nil
 }
 

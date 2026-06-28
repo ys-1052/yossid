@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yossid — Create Account (Neo-Brutalist)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --card-bg: #ffffff;
+      --text-main: #111111;
+      --text-muted: #666666;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border-color: #111111;
+      --input-bg: #ffffff;
+      --shadow-offset: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 4px solid var(--border-color);
+      border-radius: 0px;
+      padding: 40px 32px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+      position: relative;
+    }
+
+    .meta-tag {
+      position: absolute;
+      top: -16px;
+      left: 20px;
+      background: var(--text-main);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border: 2px solid var(--border-color);
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      text-transform: lowercase;
+      margin-bottom: 6px;
+      display: inline-block;
+      border-bottom: 4px solid var(--accent);
+      padding-bottom: 2px;
+    }
+
+    .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 0px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: transform 0.1s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 14px;
+      padding-right: 40px;
+    }
+
+    input:focus, select:focus {
+      background: #fbfbfb;
+      box-shadow: 3px 3px 0px var(--accent);
+      transform: translate(-1px, -1px);
+    }
+
+    /* Password strength indicator list */
+    .strength-list {
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      list-style: none;
+    }
+
+    .strength-list li::before {
+      content: "- ";
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--bg);
+      border: 2px solid var(--border-color);
+      color: var(--text-main);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      outline: none;
+      padding: 4px 8px;
+    }
+
+    .toggle-pass:hover {
+      background: var(--border-color);
+      color: #fff;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #ffffff;
+      border: 3px solid var(--border-color);
+      border-radius: 0px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px var(--border-color);
+      transition: all 0.1s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent-hover);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--border-color);
+    }
+
+    .submit-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--border-color);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      border-top: 2px dashed var(--border-color);
+      padding-top: 20px;
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: underline;
+      font-weight: 700;
+    }
+
+    .footer a:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="meta-tag">REGISTRATION_FLOW_V1.0</div>
+      
+      <div class="header">
+        <div class="logo">yossid</div>
+        <div class="subtitle">> CREATE_NEW_IDENTITY</div>
+      </div>
+
+      <form id="registerForm" method="POST" action="/register">
+        <div class="form-group">
+          <div class="label-row">
+            <label for="email">USER_EMAIL</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              placeholder="name@domain.com" 
+              autocomplete="email" 
+              required
+              enterkeyhint="next"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="new-password">PASSWORD</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="new-password" 
+              name="password" 
+              placeholder="Min 8 characters" 
+              autocomplete="new-password" 
+              required
+              enterkeyhint="next"
+            >
+            <button type="button" class="toggle-pass" onclick="togglePassword('new-password')">[SHOW]</button>
+          </div>
+          <ul class="strength-list">
+            <li>Must contain at least 8 characters</li>
+            <li>Include numbers & special characters</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="confirm-password">CONFIRM_PASSWORD</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="confirm-password" 
+              name="confirm_password" 
+              placeholder="Re-enter password" 
+              autocomplete="new-password" 
+              required
+              enterkeyhint="next"
+            >
+            <button type="button" class="toggle-pass" onclick="togglePassword('confirm-password')">[SHOW]</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="fullname">FULL_NAME (ALPHABET)</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="fullname" 
+              name="fullname" 
+              placeholder="Jane Doe" 
+              autocomplete="name" 
+              required
+              enterkeyhint="next"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="katakana">KATAKANA_NAME</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="katakana" 
+              name="katakana" 
+              placeholder="ジェーン ドゥ" 
+              required
+              pattern="^[ァ-ヶー\s]+$"
+              title="Please enter in Katakana characters only."
+              enterkeyhint="next"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="birthdate">BIRTHDATE</label>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="date" 
+              id="birthdate" 
+              name="birthdate" 
+              required
+              enterkeyhint="next"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="gender">GENDER</label>
+          </div>
+          <div class="input-wrapper">
+            <select id="gender" name="gender" required>
+              <option value="" disabled selected>Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">CREATE_IDENTITY</button>
+      </form>
+
+      <div class="footer">
+        EXISTING_USER? <a href="/login">SIGN_IN</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(id) {
+      const passInput = document.getElementById(id);
+      const toggleBtn = passInput.nextElementSibling;
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        toggleBtn.textContent = '[HIDE]';
+      } else {
+        passInput.type = 'password';
+        toggleBtn.textContent = '[SHOW]';
+      }
+    }
+  </script>
+</body>
+</html>
