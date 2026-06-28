@@ -1,0 +1,51 @@
+name: AWS CDK CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'infra/aws/**'
+      - '.github/workflows/aws-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'infra/aws/**'
+      - '.github/workflows/aws-ci.yml'
+
+jobs:
+  aws-cdk:
+    name: AWS CDK (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: infra/aws/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd infra/aws
+          npm ci
+
+      - name: Verify Code Format
+        run: |
+          cd infra/aws
+          npx prettier --check "**/*.ts"
+
+      - name: Build TypeScript
+        run: |
+          cd infra/aws
+          npm run build
+
+      - name: Synthesize CloudFormation Template
+        run: |
+          cd infra/aws
+          # Set dummy AWS region/account environment variables for CDK synthesis in CI
+          export AWS_DEFAULT_REGION=ap-northeast-1
+          export CDK_DEFAULT_ACCOUNT=123456789012
+          npx cdk synth

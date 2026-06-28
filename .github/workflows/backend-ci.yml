@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: backend/go.sum
+
+      - name: Verify Formatting
+        run: |
+          cd backend
+          if [ -n "$(go fmt ./...)" ]; then
+            echo "Error: Go code is not formatted. Run 'go fmt ./...' locally."
+            exit 1
+          fi
+
+      - name: Run Go Vet
+        run: |
+          cd backend
+          go vet ./...
+
+      - name: Compile Go Code
+        run: |
+          cd backend
+          go build -o /dev/null ./cmd/server/main.go
+          go build -o /dev/null ./cmd/lambda/main.go
